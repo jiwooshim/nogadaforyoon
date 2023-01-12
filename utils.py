@@ -51,7 +51,7 @@ def open_html(html):
 def flatten_list(items):
     for x in items:
         if isinstance(x, Iterable) and not isinstance(x, (str, bytes)):
-            for sub_x in flatten(x):
+            for sub_x in flatten_list(x):
                 yield sub_x
         else:
             yield x.strip()
