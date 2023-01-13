@@ -6,6 +6,7 @@ import os
 import traceback
 from setlogging import logger
 from utils import module_path, clean_list
+import re
 
 
 def get_product_info(soup):
@@ -50,12 +51,13 @@ def get_data(URL):
 
 def save_to_json(data_json):
     URL = json.loads(data_json)['URL']
-    product_title = json.loads(data_json)['product_info'][0]['product_title']
+    product_title = json.loads(data_json)['product_info'][0]['product_title'].lower().replace(' ', '-').replace('_', '-').replace('/', '-')
+    product_title = re.sub(' / ', '-', product_title)
+    product_title = re.sub('[ /\_]', '-', product_title).lower().strip()
     product_category = json.loads(data_json)['product_info'][0]['product_category']
 
     url_subdir_list = clean_list(URL.split('/shop/')[1].split('/'))
-    if url_subdir_list[-1].lower().replace(' ', '-').replace('_', '-').strip() \
-            == product_title.lower().replace(' ', '-').replace('_', '-').replace('/', '-').strip():
+    if url_subdir_list[-1].lower().replace(' ', '-').replace('_', '-').strip() == product_title:
         url_subdir_list.pop()
 
     data_subdir = os.path.join(module_path, 'data_json', '/'.join(url_subdir_list))
@@ -77,7 +79,7 @@ def main(URL):
     except:
         logger.error(f"Failed to get data from {URL}, exception printed below for reference")
         traceback.print_exc()
-        exit(1)
+        return
 
     """Uncomment below codes if you would like a physical JSON file on your directory"""
     try:
@@ -86,7 +88,7 @@ def main(URL):
     except:
         logger.error(f'Failed to save data, exception printed below for reference')
         traceback.print_exc()
-        exit()
+        return
 
 
 if __name__ == "__main__":
